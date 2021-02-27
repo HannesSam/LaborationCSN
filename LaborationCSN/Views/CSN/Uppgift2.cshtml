@@ -1,0 +1,46 @@
+﻿@using System.Xml.Linq
+@model XElement
+
+@{
+    ViewBag.Title = "Uppgift 2 - Utbetalningar och bidragstyper";
+}
+
+<h2>Uppgift 2 - Utbetalningar och bidragstyper</h2>
+
+<table table class="table-bordered table_50">
+    <thead>
+        <tr>
+            <th>
+                Datum
+            </th>
+            <th>
+                Totalsumma
+            </th>
+            <th>
+                Utbetalningar
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Elements())
+        {
+            <tr>
+                <td>
+                    @((string)item.Element("Datum"))
+                </td>
+                <td>
+                    @((string)item.Element("Totalsumma"))
+                </td>
+                <td>
+                    @foreach (var utbetalningTyp in item.Elements("Utbetalningsinfo"))
+                    {
+                     <tr>
+                            <td></td>
+                     </tr>
+            }
+
+                    </td>
+                    </tr>
+                }
+    </tbody>
+</table>

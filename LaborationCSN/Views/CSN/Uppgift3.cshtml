@@ -1,0 +1,46 @@
+﻿@using System.Xml.Linq
+@model XElement
+
+@{
+    ViewBag.Title = "Uppgift 3 - Beviljade Tider";
+}
+
+<h2>Uppgift 3 - Beviljade Tider</h2>
+
+<table table class="table-bordered table_50">
+    <thead>
+        <tr>
+            <th>
+                Startdatum
+            </th>
+            <th>
+                Slutdatum
+            </th>
+            <th>
+                Typ
+            </th>
+            <th>
+                Summa
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Elements("BeviljadTid"))
+        {
+        <tr>
+            <td>
+                @((string)item.Element("Startdatum"))
+            </td>
+            <td>
+                @((string)item.Element("Slutdatum"))
+            </td>
+            <td>
+                @((string)item.Element("Typ"))
+            </td>
+            <td>
+                @((string)item.Element("Summa"))
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>

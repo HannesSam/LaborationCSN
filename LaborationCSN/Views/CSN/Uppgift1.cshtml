@@ -1,0 +1,80 @@
+﻿@using System.Xml.Linq
+@model XElement
+
+@{
+    ViewBag.Title = "Uppgift 1 - Utbetalningar per ärende";
+}
+
+<h2>Uppgift 1 - Utbetalningar per ärende</h2>
+
+@foreach (var item in Model.Elements())
+{
+    <h3>Ärende @item.Attribute("ÄrendeNr").Value</h3>
+
+    <p>Bidrag: @item.Attribute("Beskrivning").Value</p>
+
+    <table table class="table-bordered table_50">
+        <thead>
+            <tr>
+                <th>
+                    Datum
+                </th>
+                <th>
+                    Status
+                </th>
+                <th>
+                    Summa
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var utbetalning in item.Elements("Utbetalningsinfo"))
+            {
+                <tr>
+                    <td>
+                        @((string)utbetalning.Element("Datum"))
+                    </td>
+                    <td>
+                        @((string)utbetalning.Element("Status"))
+                    </td>
+                    <td>
+                        @((string)utbetalning.Element("Summa"))
+                    </td>
+                </tr>
+            }
+
+            <tr>
+                <td>
+                    Total summa:
+                </td>
+                <td>
+                    @item.Element("TotalSumma").Value
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Utbetald summa:
+                </td>
+                <td>
+                    @item.Element("UtbetaldSumma").Value
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Kvarvarande summa:
+                </td>
+                <td>
+                    @item.Element("KvarvarandeSumma").Value
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+}
+
+
+
+@{
+    // Detta är det XElement-objekt som skickats till vyn
+    XElement xml = Model;
+}

@@ -32,15 +32,19 @@
                     @((string)item.Element("Totalsumma"))
                 </td>
                 <td>
-                    @foreach (var utbetalningTyp in item.Elements("Utbetalningsinfo"))
-                    {
-                     <tr>
-                            <td></td>
-                     </tr>
-            }
-
-                    </td>
-                    </tr>
-                }
+                    <table table class="table-bordered table_100">
+                        @foreach (var Typ in item.Elements("UtbetalningsTyper").Elements("Typ"))
+                        {
+                            <tbody>
+                                <tr>
+                                    <td>@((string)Typ.Element("Beskrivning")) </td>
+                                    <td>@((string)Typ.Element("Summa")) </td>
+                                </tr>
+                            </tbody>
+                        }
+                    </table>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

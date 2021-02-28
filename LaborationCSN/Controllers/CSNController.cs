@@ -77,60 +77,64 @@ namespace LaborationCSN.Controllers
                             ORDER BY a.Arendenummer ASC";
             XElement baseNode = SQLResult(query, "Ärenden", "Ärende");
 
-            XElement baseN = new XElement("Ärenden");
-            foreach (var x in baseNode.Elements("Ärende"))
+            XElement uppgift1 = new XElement("Ärenden");
+            foreach (var ärende in baseNode.Elements("Ärende"))
             {
-                string nodeName = x.Element("Arendenummer").Value;
+                string ärendeNummer = ärende.Element("Arendenummer").Value;
                 query = @"SELECT ut.UtbetDatum as Datum, ut.UtbetStatus as Status, SUM((Sluttid-Starttid + 1) * b.Belopp) as Summa
                             FROM Utbetalningsplan up, Utbetalning ut, UtbetaldTid_Belopp utb, UtbetaldTid utid, Belopp b
-                            WHERE " + nodeName +  @"= up.Arendenummer AND ut.UtbetPlanID = up.UtbetPlanID AND ut.UtbetID = utid.UtbetID AND utb.BeloppID = b.BeloppID AND utid.UtbetTidID = utb.UtbetaldTidID 
+                            WHERE " + ärendeNummer + @"= up.Arendenummer AND ut.UtbetPlanID = up.UtbetPlanID AND ut.UtbetID = utid.UtbetID AND utb.BeloppID = b.BeloppID AND utid.UtbetTidID = utb.UtbetaldTidID 
 							GROUP BY ut.UtbetID";
-                
-                XElement secondq = SQLResult(query, "Ärende", "Utbetalningsinfo");
-                secondq.SetAttributeValue("ÄrendeNr", nodeName);
-                secondq.SetAttributeValue("Beskrivning", x.Element("Beskrivning").Value);
+
+                XElement secondNode = SQLResult(query, "Ärende", "Utbetalningsinfo");
+                secondNode.SetAttributeValue("ÄrendeNr", ärendeNummer);
+                secondNode.SetAttributeValue("Beskrivning", ärende.Element("Beskrivning").Value);
 
 
                 XElement totalSumma = new XElement("TotalSumma",
-                (from s in secondq.Descendants("Summa")
+                (from s in secondNode.Descendants("Summa")
                  select (int)s).Sum());
 
                 XElement utbetaldSumma = new XElement("UtbetaldSumma",
-                (secondq.Elements().Where(b => b.Element("Status").Value == "Utbetald").Elements("Summa").Select(s => (int)s).Sum()));
+                (secondNode.Elements().Where(b => b.Element("Status").Value == "Utbetald").Elements("Summa").Select(s => (int)s).Sum()));
 
                 XElement kvarvarandeSumma = new XElement("KvarvarandeSumma",
                     ((int)totalSumma - (int)utbetaldSumma));
 
-                secondq.Add(totalSumma);
-                secondq.Add(utbetaldSumma);
-                secondq.Add(kvarvarandeSumma);
+                secondNode.Add(totalSumma);
+                secondNode.Add(utbetaldSumma);
+                secondNode.Add(kvarvarandeSumma);
 
-                baseN.Add(secondq);
-            } 
+                uppgift1.Add(secondNode);
+            }
 
-            return View(baseN);
+            return View(uppgift1);
         }
         //
         // GET: /Csn/Uppgift2
 
         public ActionResult Uppgift2()
         {
-            string query = @"SELECT ut.UtbetDatum as Datum, SUM((Sluttid-Starttid + 1) * b.Belopp) as Totalsumma, utid_b.BeloppID as Info
+
+            string query = @"SELECT ut.UtbetDatum as Datum, SUM((Sluttid-Starttid + 1) * b.Belopp) as Totalsumma
                             FROM Utbetalning ut, UtbetaldTid_Belopp utid_b, UtbetaldTid utid, Belopp b
                             WHERE ut.UtbetID = utid.UtbetID AND utid_b.BeloppID = b.BeloppID AND utid.UtbetTidID = utid_b.UtbetaldTidID AND ut.UtbetStatus = 'Utbetald'
                             GROUP BY ut.UtbetDatum";
 
-            XElement baseNode = SQLResult(query, "UtbetalningarOchBidragstyper", "Utbetalningar");
+            XElement uppgift2 = SQLResult(query, "UtbetalningarOchBidragstyper", "Utbetalningar");
 
-            foreach (var item in baseNode.Elements("Utbetalningar"))
+            foreach (var utbetalning in uppgift2.Elements())
             {
+                query = @"SELECT bt.Beskrivning, SUM(((Sluttid-Starttid + 1) * b.Belopp)) as Summa
+                            FROM Utbetalning ut, UtbetaldTid_Belopp utid_b, UtbetaldTid utid, Belopp b, Beloppstyp bt
+                            WHERE ut.UtbetDatum = " + utbetalning.Element("Datum").Value + @" AND ut.UtbetID = utid.UtbetID AND utid_b.BeloppID = b.BeloppID AND utid.UtbetTidID = utid_b.UtbetaldTidID AND ut.UtbetStatus = 'Utbetald' AND b.Beloppstypkod = bt.Beloppstypkod
+							GROUP BY ut.UtbetDatum, b.Beloppstypkod";
 
-                XElement secondq = SQLResult(query, "BasNod", "Bidragstyper");
+                XElement utbetalningsTyper = SQLResult(query, "UtbetalningsTyper", "Typ");
+                utbetalning.Add(utbetalningsTyper);
 
             }
-
-
-            return View(baseNode);
+            return View(uppgift2);
         }
 
         //
@@ -143,8 +147,8 @@ namespace LaborationCSN.Controllers
                             WHERE a.Personnr = p.Personnr AND btid.Arendenummer = a.Arendenummer AND a.Stodformskod = s.Stodformskod AND btid_b.BeloppID = b.BeloppID AND btid_b.BeviljadTidID = btid.BeviljadTidID 
                             GROUP BY btid_b.BeviljadTidID
                             ORDER BY s.Beskrivning ASC";
-            XElement beviljadeTider = SQLResult(query, "BeviljadeTider", "BeviljadTid");
-            return View(beviljadeTider);
+            XElement uppgift3 = SQLResult(query, "BeviljadeTider", "BeviljadTid");
+            return View(uppgift3);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Data.SQLite;
+using System.Diagnostics;
 using System.Linq;
 using System.Web.Hosting;
 using System.Web.Mvc;
@@ -71,6 +72,9 @@ namespace LaborationCSN.Controllers
 
         public ActionResult Uppgift1()
         {
+            var timer = new Stopwatch();
+            timer.Start();
+
             string query = @"SELECT a.Arendenummer, s.Beskrivning
                             FROM Arende a, Utbetalningsplan up, Stodform s
                             WHERE a.Arendenummer = up.Arendenummer AND s.Stodformskod = a.Stodformskod
@@ -107,6 +111,10 @@ namespace LaborationCSN.Controllers
 
                 uppgift1.Add(secondNode);
             }
+
+            timer.Stop();
+
+            TimeSpan timeTaken = timer.Elapsed;
 
             return View(uppgift1);
         }
